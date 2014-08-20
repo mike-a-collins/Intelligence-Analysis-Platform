@@ -10,6 +10,9 @@
  */
 package com.example;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,7 +51,32 @@ public final class ExampleSearcher
      */
     public ExampleSearcher()
     {
-        repo = ClientFactoryFactory.createClientFactory("http://localhost/apollo/services", "Manager", "password");
+        HashMap<String, String> config = new HashMap<String, String>();
+	    String file = "./reposearch.config";
+	    BufferedReader reader = null;
+	    FileReader fr = null;
+        try{
+        	fr = new FileReader(file);
+            reader = new BufferedReader(fr);
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.split("=");
+                    config.put(tokens[0], tokens[1]);
+                }
+        } catch (IOException x) {
+            config.put("url","http://localhost/apollo/services");
+			config.put("username","Manager");
+			config.put("password","password");
+        } finally {
+        	try {
+				reader.close();
+				fr.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println("Using default settings!");
+			}
+        }
+        repo = ClientFactoryFactory.createClientFactory(config.get("url"), config.get("username"), config.get("password"));
     }
 	
 	public void runSearch()
